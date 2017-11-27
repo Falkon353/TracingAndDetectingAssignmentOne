@@ -56,11 +56,15 @@ imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;
 %%Camera constants
 [y,x,z] = size(testPictureA);
 focalLength= [2960.37845 2960.37845];
-principalPoint = [1841.68855 1841.68855];
-intrinsics =  cameraIntrinsics(focalLength,principalPoint,[y x]);
+principalPoint = [1841.68855  1235.23369];
+intrinsicMatrix = [2960.37845     0         0;
+                       0      2960.37845    0;
+                   1841.68855 1235.23369    1];
+
+cameraParameters =  cameraParameters('IntrinsicMatrix',intrinsicMatrix);
 
 %% Estimating camera pose
-[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,ptCloud.Location(1:6,:),intrinsics,'MaxReprojectionError',18);
+[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,ptCloud.Location(1:6,:),cameraParameters,'MaxReprojectionError',18);
 
 pcshow(ptCloud.Location,'VerticalAxis','Y','VerticalAxisDir','down', ...
      'MarkerSize',30);
@@ -98,7 +102,12 @@ pcshow(ptCloud.Location,'VerticalAxis','Y','VerticalAxisDir','down', ...
 %  vl_plotsiftdescriptor(relevantD,relevantF);
 %  hold off;
 %  
-% P = cameraMatrix(intrinsics,worldOrientation,worldLocation);
+%P = cameraMatrix(cameraParameters,worldOrientation,worldLocation);
+Cintrinsic = [ 2960.37845     0        0;
+                 0        2960.37845   0;
+               1841.68855 1235.23369   1]; 
+RT = [worldOrientation worldLocation'];
+P = Cintrinsic*RT;
 % A = eye(4);
 % b = [0.165;0.063;0.093;1];
 % Aeq = [0 0 0 1];
@@ -106,7 +115,9 @@ pcshow(ptCloud.Location,'VerticalAxis','Y','VerticalAxisDir','down', ...
 % d = [1.3458335e+03;1.1372113e+03;1];
 % 
 % % M = lsqlin(P',d,A,b,Aeq,beq);
-% M = [0;0.063; 0.093;1];
-% m = P'*M;
+M = [0.16500001; 0.063000001;0.093000002;1];
+m = P*M;
+
+
 
 
