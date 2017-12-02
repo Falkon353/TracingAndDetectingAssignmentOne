@@ -11,12 +11,12 @@ point2 = detectMinEigenFeatures(testPictureAGray,'ROI', [1922,1231,8,8]);
 % point6 = detectMinEigenFeatures(testPictureAGray,'ROI', [2273,1584,10,10]);
 image(testPictureA);
 hold on;
-plot(point1.selectStrongest(50));
-plot(point2.selectStrongest(50));
-% plot(point3.selectStrongest(50));
-% plot(point4.selectStrongest(50));
-% plot(point5.selectStrongest(50));
-% plot(point6.selectStrongest(50));
+% plot(point1.selectStrongest(50));
+% plot(point2.selectStrongest(50));
+% % plot(point3.selectStrongest(50));
+% % plot(point4.selectStrongest(50));
+% % plot(point5.selectStrongest(50));
+% % plot(point6.selectStrongest(50));
 hold off
 % imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location];
 % %imagePointsM = [point5.Location;point6.Location;point4.Location;point3.Location;point1.Location;point2.Location];

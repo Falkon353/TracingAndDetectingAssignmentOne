@@ -1,38 +1,14 @@
 clear all
-
-%%3d model data
-nodeM = [ 0      0.063  0.093 -0.666667  0.333333  0.666667; 
-          0.165  0.063  0.093  0.666667  0.666667  0.333333; 
-          0.165  0      0.093  0.333333 -0.666667  0.666667;
-          0      0      0.093 -0.57735 -0.57735   0.57735  ;
-          0      0.063  0     -0.333333  0.666667 -0.666667;
-          0.165  0.063  0      0.57735   0.57735  -0.57735 ;
-          0.165  0      0      0.666667 -0.333333 -0.666667; 
-          0      0      0     -0.666667 -0.666667 -0.333333];
-      
-faceM = [0 1 4; 
-         4 1 5; 
-         1 6 5; 
-         1 2 6; 
-         0 2 1; 
-         0 3 2; 
-         0 7 3; 
-         0 4 7; 
-         4 5 6; 
-         4 6 7; 
-         2 7 6; 
-         2 3 7 ];
-
-     
- 
+%% Get world points in ptCloud
+% ptCloud = pcread('data/model/teabox.ply');
+% % %hold on
+% % pcshow(ptCloud);
+%% Get real wordl points
+[vertex,face] =  read_ply('data/model/teabox.ply');
+singleVertex = single(vertex);
 
 
-     
-ptCloud = pcread('data/model/teabox.ply');
-%hold on
-pcshow(ptCloud);
-
-%%Geting Corner points
+%% Geting Corner points
 testPictureA = imread('data/images/init_texture/DSC_9743.jpg');
 testPictureAGray = rgb2gray(testPictureA);
 point1 = detectMinEigenFeatures(testPictureAGray,'ROI',[1344,1135,10,10]);
@@ -51,9 +27,8 @@ point6 = detectMinEigenFeatures(testPictureAGray,'ROI', [2273,1584,10,10]);
 % plot(point6.selectStrongest(50));
 % hold off
 imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location];
-%imagePointsM = [point5.Location;point6.Location;point4.Location;point3.Location;point1.Location;point2.Location];
 
-%%Camera constants
+%% Camera constants
 [y,x,z] = size(testPictureA);
 focalLength= [2960.37845 2960.37845];
 principalPoint = [1841.68855  1235.23369];
@@ -64,9 +39,9 @@ intrinsicMatrix = [2960.37845     0         0;
 cameraParameters =  cameraParameters('IntrinsicMatrix',intrinsicMatrix);
 
 %% Estimating camera pose
-[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,ptCloud.Location(1:6,:),cameraParameters,'MaxReprojectionError',18);
+[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,singleVertex(1:6,:),cameraParameters,'MaxReprojectionError',18);
 
-pcshow(ptCloud.Location,'VerticalAxis','Y','VerticalAxisDir','down', ...
+pcshow(singleVertex,'VerticalAxis','Y','VerticalAxisDir','down', ...
      'MarkerSize',30);
  hold on
  plotCamera('Size',0.05,'Orientation',worldOrientation,'Location',...
@@ -101,23 +76,41 @@ pcshow(ptCloud.Location,'VerticalAxis','Y','VerticalAxisDir','down', ...
 %  hold on;
 %  vl_plotsiftdescriptor(relevantD,relevantF);
 %  hold off;
-%  
-%P = cameraMatrix(cameraParameters,worldOrientation,worldLocation);
-Cintrinsic = [ 2960.37845     0        0;
-                 0        2960.37845   0;
-               1841.68855 1235.23369   1]; 
-RT = [worldOrientation worldLocation'];
-P = Cintrinsic*RT;
-% A = eye(4);
-% b = [0.165;0.063;0.093;1];
+%
+%% Finding rotation matrix and translation
+R = worldOrientation';
+t = -worldLocation*worldOrientation';
+RT = [R; t];
+M = [0. 0.063 0.093 1];
+m = M*RT*cameraParameters.IntrinsicMatrix;
+% %% Use minesquere to find the coresponding 3D point to a 2D point. 
+% % A = eye(4);
+% % b = [0.165;0.063;0.093;1];
+% A = [];
+% b = [];
+% LB = [0; 0; 0; 1];
+% UB = [0.165;0.063;0.093;1];
 % Aeq = [0 0 0 1];
 % beq= 1;
 % d = [1.3458335e+03;1.1372113e+03;1];
-% 
-% % M = lsqlin(P',d,A,b,Aeq,beq);
-M = [0.16500001; 0.063000001;0.093000002;1];
-m = P*M;
-
+% P = cameraParameters.IntrinsicMatrix'*RT';
+% M_est = lsqlin(P,d,A,b,Aeq,beq,LB,UB);
+% m_est = P*M';
+%% Corelating 2D point to 3D
+m_test = [1.3458335e+03;1.1372113e+03;1;1];
+%m_test = [1.3458335e+03;1.1372113e+03;1];
+invertebleP = [cameraParameters.IntrinsicMatrix' zeros(3,1);zeros(1,3) 1]*[R' t'; zeros(1,3) 1]*[cameraParameters.IntrinsicMatrix' zeros(3,1);zeros(1,3) 1];
+invP = inv(invertebleP);
+inverteblePReduced = invertebleP(1:3,:);
+%dir = inverteblePReduced*m_test;
+% invRTFull = inv([R' t';zeros(1,3) 1]);
+% invRTReduced = invRTFull(1:3,:);
+% invP = invRTReduced*inv(cameraParameters.IntrinsicMatrix);
+dir = invP*m_test;
+vert0 = vertex(1,:)';
+vert1 = vertex(2,:)';
+vert2 = vertex(3,:)';
+[intersect, distance, u, v, xcoor] = TriangleRayIntersection(t, dir(1:3), vert0, vert1, vert2);
 
 
 
