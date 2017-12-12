@@ -43,13 +43,6 @@ cameraParameters =  cameraParameters('IntrinsicMatrix',intrinsicMatrix);
 %% Estimating camera pose
 [worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,mapedVertex,cameraParameters,'MaxReprojectionError',3);
 
-% pcshow(singleVertex,'VerticalAxis','Y','VerticalAxisDir','down', ...
-%      'MarkerSize',30);
-%  hold on
-%  plotCamera('Size',0.05,'Orientation',worldOrientation,'Location',...
-%      worldLocation);
-%  hold off
-%  vert
 %  %%Finding sift
 %  testPictureASingel = im2single(testPictureAGray);
 %  fc1 = [1831 1829;1312 1312 ;1 1;0 0];
@@ -87,33 +80,48 @@ M = [0. 0.063 0.093 1];
 worldPoints = [0. 0.063 0.093];
 m = M*RT*cameraParameters.IntrinsicMatrix;
 %% Corelating 2D point to 3D
-m_test = [1.3458e+03;1.1372e+03;1;1];
+m_test = [1.3458e+03;1.1372e+03;1];
 centerDirection = worldOrientation'*[0; 0; 1];
-dirx = centerDirection(1)+(m_test(1)-principalPoint(1))/focalLength(1);
-diry = centerDirection(2)+(m_test(2)-principalPoint(2))/focalLength(2);
+dirx = centerDirection(1)+(m_test(1)-principalPoint(1))*focalLength(1);
+diry = centerDirection(2)+(m_test(2)-principalPoint(2))*focalLength(2);
 dirz = centerDirection(3);
-dir = [dirx; diry; dirz];
-vert0 = vertex(1,:)';
-vert1 = vertex(2,:)';
-vert2 = vertex(3,:)';
-[intersect, distance, u, v, xcoor] = TriangleRayIntersection(worldLocation, dir(1:3), vert0, vert1, vert2,'border', 'inclusive');
+% dir = [dirx; diry; dirz];
+dir = intrinsicMatrix'*m_test;
+unitDir = dir/norm(dir);
+DirRotated = unitDir;
+vert0 = vertex(3,:)';
+vert1 = vertex(4,:)';
+vert2 = vertex(8,:)';
+[intersect, distance, u, v, xcoor] = TriangleRayIntersection(worldLocation, centerDirection, vert0, vert1, vert2,'border', 'inclusive');
 
-hold on;
-vertexDim = size(mapedVertex);
-for i= 1:vertexDim(1)
-    m1 = [mapedVertex(i,:) 1]*RT*cameraParameters.IntrinsicMatrix;
-    disp("Vertex nr:");
-    disp(i);
-    m1_1 = m1(1)/m1(3)
-    m1_2 = m1(2)/m1(3)
-    for j = i:vertexDim(1)
-        disp("VErtex second nr")
-        disp(j);
-        m2 = [mapedVertex(j,:) 1]*RT*cameraParameters.IntrinsicMatrix;
-        line([m1(1)/m1(3),m2(1)/m2(3)],[m1(2)/m1(3),m2(2)/m2(3)]);
-    end
-end
-hold off; 
+
+pcshow(singleVertex,[0 0 0],'VerticalAxis','Y','VerticalAxisDir','down', ...
+     'MarkerSize',30);
+ hold on
+ plotCamera('Size',0.05,'Orientation',worldOrientation,'Location',...
+     worldLocation);
+ quiver3(worldLocation(1),worldLocation(2),worldLocation(3),centerDirection(1),centerDirection(2),centerDirection(3))
+ quiver3(worldLocation(1),worldLocation(2),worldLocation(3),DirRotated(1),DirRotated(2),DirRotated(3))
+ %quiver3(0,0,0,DirRotated(1),DirRotated(2),DirRotated(3))
+ scatter3(xcoor(1),xcoor(2),xcoor(3));
+ hold off
+
+% hold on;
+% vertexDim = size(mapedVertex);
+% for i= 1:vertexDim(1)
+%     m1 = [mapedVertex(i,:) 1]*RT*cameraParameters.IntrinsicMatrix;
+%     disp("Vertex nr:");
+%     disp(i);
+%     m1_1 = m1(1)/m1(3)
+%     m1_2 = m1(2)/m1(3)
+%     for j = i:vertexDim(1)
+%         disp("VErtex second nr")
+%         disp(j);
+%         m2 = [mapedVertex(j,:) 1]*RT*cameraParameters.IntrinsicMatrix;
+%         line([m1(1)/m1(3),m2(1)/m2(3)],[m1(2)/m1(3),m2(2)/m2(3)]);
+%     end
+% end
+% hold off; 
 
 
 
