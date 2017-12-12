@@ -6,6 +6,7 @@ clear all
 %% Get real wordl points
 [vertex,face] =  read_ply('data/model/teabox.ply');
 singleVertex = single(vertex);
+centerPoint = cornerPoints([1841.68855 1235.2336]);
 
 
 %% Geting Corner points
@@ -17,17 +18,18 @@ point3 = detectMinEigenFeatures(testPictureAGray,'ROI', [2235,1001,10,10]);
 point4 = detectMinEigenFeatures(testPictureAGray,'ROI',[1373,1016,10,10]);
 point5 = detectMinEigenFeatures(testPictureAGray,'ROI',[1368,1609,10,10]);
 point6 = detectMinEigenFeatures(testPictureAGray,'ROI', [2273,1584,10,10]);
-% image(testPictureA);
-% hold on;
+image(testPictureA);
+hold on;
 % plot(point1.selectStrongest(50));
 % plot(point2.selectStrongest(50));
 % plot(point3.selectStrongest(50));
 % plot(point4.selectStrongest(50));
 % plot(point5.selectStrongest(50));
 % plot(point6.selectStrongest(50));
-% hold off
+plot(centerPoint);
+hold off
 imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location];
-
+mapedVertex = [singleVertex(4,:);singleVertex(3,:);singleVertex(2,:);singleVertex(1,:);singleVertex(8,:);singleVertex(7,:)];
 %% Camera constants
 [y,x,z] = size(testPictureA);
 focalLength= [2960.37845 2960.37845];
@@ -39,15 +41,15 @@ intrinsicMatrix = [2960.37845     0         0;
 cameraParameters =  cameraParameters('IntrinsicMatrix',intrinsicMatrix);
 
 %% Estimating camera pose
-[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,singleVertex(1:6,:),cameraParameters,'MaxReprojectionError',18);
+[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,mapedVertex,cameraParameters,'MaxReprojectionError',3);
 
-pcshow(singleVertex,'VerticalAxis','Y','VerticalAxisDir','down', ...
-     'MarkerSize',30);
- hold on
- plotCamera('Size',0.05,'Orientation',worldOrientation,'Location',...
-     worldLocation);
- hold off
- 
+% pcshow(singleVertex,'VerticalAxis','Y','VerticalAxisDir','down', ...
+%      'MarkerSize',30);
+%  hold on
+%  plotCamera('Size',0.05,'Orientation',worldOrientation,'Location',...
+%      worldLocation);
+%  hold off
+%  vert
 %  %%Finding sift
 %  testPictureASingel = im2single(testPictureAGray);
 %  fc1 = [1831 1829;1312 1312 ;1 1;0 0];
@@ -82,35 +84,36 @@ R = worldOrientation';
 t = -worldLocation*worldOrientation';
 RT = [R; t];
 M = [0. 0.063 0.093 1];
+worldPoints = [0. 0.063 0.093];
 m = M*RT*cameraParameters.IntrinsicMatrix;
-% %% Use minesquere to find the coresponding 3D point to a 2D point. 
-% % A = eye(4);
-% % b = [0.165;0.063;0.093;1];
-% A = [];
-% b = [];
-% LB = [0; 0; 0; 1];
-% UB = [0.165;0.063;0.093;1];
-% Aeq = [0 0 0 1];
-% beq= 1;
-% d = [1.3458335e+03;1.1372113e+03;1];
-% P = cameraParameters.IntrinsicMatrix'*RT';
-% M_est = lsqlin(P,d,A,b,Aeq,beq,LB,UB);
-% m_est = P*M';
 %% Corelating 2D point to 3D
-m_test = [1.3458335e+03;1.1372113e+03;1;1];
-%m_test = [1.3458335e+03;1.1372113e+03;1];
-invertebleP = [cameraParameters.IntrinsicMatrix' zeros(3,1);zeros(1,3) 1]*[R' t'; zeros(1,3) 1]*[cameraParameters.IntrinsicMatrix' zeros(3,1);zeros(1,3) 1];
-invP = inv(invertebleP);
-inverteblePReduced = invertebleP(1:3,:);
-%dir = inverteblePReduced*m_test;
-% invRTFull = inv([R' t';zeros(1,3) 1]);
-% invRTReduced = invRTFull(1:3,:);
-% invP = invRTReduced*inv(cameraParameters.IntrinsicMatrix);
-dir = invP*m_test;
+m_test = [1.3458e+03;1.1372e+03;1;1];
+centerDirection = worldOrientation'*[0; 0; 1];
+dirx = centerDirection(1)+(m_test(1)-principalPoint(1))/focalLength(1);
+diry = centerDirection(2)+(m_test(2)-principalPoint(2))/focalLength(2);
+dirz = centerDirection(3);
+dir = [dirx; diry; dirz];
 vert0 = vertex(1,:)';
 vert1 = vertex(2,:)';
 vert2 = vertex(3,:)';
-[intersect, distance, u, v, xcoor] = TriangleRayIntersection(t, dir(1:3), vert0, vert1, vert2);
+[intersect, distance, u, v, xcoor] = TriangleRayIntersection(worldLocation, dir(1:3), vert0, vert1, vert2,'border', 'inclusive');
+
+hold on;
+vertexDim = size(mapedVertex);
+for i= 1:vertexDim(1)
+    m1 = [mapedVertex(i,:) 1]*RT*cameraParameters.IntrinsicMatrix;
+    disp("Vertex nr:");
+    disp(i);
+    m1_1 = m1(1)/m1(3)
+    m1_2 = m1(2)/m1(3)
+    for j = i:vertexDim(1)
+        disp("VErtex second nr")
+        disp(j);
+        m2 = [mapedVertex(j,:) 1]*RT*cameraParameters.IntrinsicMatrix;
+        line([m1(1)/m1(3),m2(1)/m2(3)],[m1(2)/m1(3),m2(2)/m2(3)]);
+    end
+end
+hold off; 
 
 
 
