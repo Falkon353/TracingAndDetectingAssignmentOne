@@ -1,27 +1,32 @@
-% function [R, t] = LevenbergMardquardt(Rnull,tNull, intriniscMatrix, M, m)
+function [rV, t] = LevenbergMardquardt(rVnull,tNull, intriniscMatrix, Mi, mi,N, tau)
 %% Constants
 % RNull = % initial rotation matrix
 % tNull = % initial translation vector
 % M = [] % point you need to match
 % m = [] % point to match to
-M =  [0.020 0. 0.045];
-m =  [1.3458e+03;1.1372e+03;1];
-e1 = [1;0;0];
-e2 = [0;1;0];
-e3 = [0;0;1];
+% M =  [0.020 0. 0.045];
+% m =  [1.3458e+03;1.1372e+03;1];
+% e1 = [1;0;0];
+% e2 = [0;1;0];
+% e3 = [0;0;1];
 
-%% Estimates
-% mEst = [] % estimate of m
-% REst = [] % estimate of rotation matrix
-% tEst = [] % estimate of translation vector
-REst = R;
-tEst = t';
-RTEst = [REst tEst];
+%% initialize
+%mEst = [] % estimate of m
+rVEst = rVNull; % estimate of rotation matrix
+tEst = tNull; % estimate of translation vector
+rVtEst = [rVEst tEst];
+t = 0;
+lambda = 0.001;
+u = tau +1;
+%mEst = intrinsicMatrix'*(RTEst(:,1:3)*M'+RTEst(:,4));
 
-intrinsicMatrix = [2960.37845     0         0;
-                       0      2960.37845    0;
-                   1841.68855 1235.23369    1];
-mEst = intrinsicMatrix'**M';
+%% main loop
+while t < N && u > tau
+    J = computeJacobian(rVtEst, intrinsicMatrix,Mi,mi);
+    e = computeEnergi(rVtEst, intrinsicMatrix,Mi,mi);
+    delta = (J'*J+lanbda*eye(size(J)))^-1*(J'*e);
+    eNew = computeEnergi(R)
+end
 
 
 %% calculating the jacobian
@@ -47,19 +52,9 @@ Rd3CrossProductSkew = [      0             -Rd3CrossProduct(3)   Rd3CrossProduct
                         Rd3CrossProduct(3)        0             -Rd3CrossProduct(1);
                        -Rd3CrossProduct(2)  Rd3CrossProduct(1)        0            ];
 Rd3 = (vSkew +Rd3CrossProductSkew)/norm(v)^2*REst;
-RTd = [ Rd1 Rd2 Rd3 eye(3)];
-J = W*A*RTd;
-%% energy function
-% Jacobian functor
-J = @(x,h,F)(F(repmat(x,size(x'))+diag(h))-F(repmat(x,size(x'))))./h';
-% Your function
-f = @(RTEst)norm(A*(RTEst(:,1:3)*M'+RTEst(:,4))-m)^2;
-% Point at which to estimate it
-%x = [1;1];
-% Step to take on each dimension (has to be small enough for precision)
-h = 1e-5*ones(size(RTEst));
-% Compute the jacobian
-J(x,h,f)
+RTd = [ Rd1*M' Rd2*M' Rd3*M' eye(3)];
+J_ana = W*A*RTd;
+
 
 
 

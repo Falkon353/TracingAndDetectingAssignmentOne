@@ -1,0 +1,17 @@
+function e = computeEnergi(rVtEst, intrinsicMatrix,Mi,mi);
+[N,] = size(Mi);
+R = rotationVectorToMatrix(rVtEst(1:3));
+t = rVtEst(4:6)'
+e = 0;
+for i = 1:N
+    mEst = intrinsicMatrix'*(R'*Mi(i,:)'+t);
+    mEst(1)/mEst(3)
+    mEst(2)/mEst(3)
+    mi()
+    [mEst(1)/mEst(3) mEst(2)/mEst(3)]-mi(i,:)
+    e = e+norm([mEst(1)/mEst(3) mEst(2)/mEst(3)]-mi(i,:));
+end
+
+
+
+
