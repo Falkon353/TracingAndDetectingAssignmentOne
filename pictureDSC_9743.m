@@ -2,13 +2,13 @@ function [relevantF, relevantD, relevantF3D] = pictureDSC_9743(singleVertex,face
 
 %% Geting Corner points
 DSC_9743 = imread('data/images/init_texture/DSC_9743.jpg');
-testPictureAGray = rgb2gray(DSC_9743);
-point1 = detectMinEigenFeatures(testPictureAGray,'ROI',[1344,1135,10,10]);
-point2 = detectMinEigenFeatures(testPictureAGray,'ROI', [2307,1111,8,8]);
-point3 = detectMinEigenFeatures(testPictureAGray,'ROI', [2235,1001,10,10]);
-point4 = detectMinEigenFeatures(testPictureAGray,'ROI',[1373,1016,10,10]);
-point5 = detectMinEigenFeatures(testPictureAGray,'ROI',[1368,1609,10,10]);
-point6 = detectMinEigenFeatures(testPictureAGray,'ROI', [2273,1584,10,10]);
+DSC_9743Gray = rgb2gray(DSC_9743);
+point1 = detectMinEigenFeatures(DSC_9743Gray,'ROI',[1344,1135,10,10]);
+point2 = detectMinEigenFeatures(DSC_9743Gray,'ROI', [2307,1111,8,8]);
+point3 = detectMinEigenFeatures(DSC_9743Gray,'ROI', [2235,1001,10,10]);
+point4 = detectMinEigenFeatures(DSC_9743Gray,'ROI',[1373,1016,10,10]);
+point5 = detectMinEigenFeatures(DSC_9743Gray,'ROI',[1368,1609,10,10]);
+point6 = detectMinEigenFeatures(DSC_9743Gray,'ROI', [2273,1584,10,10]);
 % image(testPictureA);
 % hold on;
 % plot(point1.selectStrongest(50));
@@ -28,7 +28,7 @@ R = worldOrientation';
 t = -worldLocation*worldOrientation';
 RT = [R; t];
 %%Finding sift
- testPictureASingel = im2single(testPictureAGray);
+ testPictureASingel = im2single(DSC_9743Gray);
  [F,D] = vl_sift( testPictureASingel);
  
  relevantF = [];

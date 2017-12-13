@@ -1,8 +1,0 @@
-clear all;
-run('vlfeat-0.9.20/toolbox/vl_setup');
-
- relevantF = [];
- relevantD = [];
- relevantF3D = [];
- 
- 
