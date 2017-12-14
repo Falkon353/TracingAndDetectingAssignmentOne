@@ -1,15 +1,15 @@
 function [relevantF, relevantD, relevantF3D] = pictureDSC_9746(singleVertex,faces,cameraParameters)
 
 % Geting Corner points
-picture = imread('data/images/init_texture/DSC_9745.jpg');
+picture = imread('data/images/init_texture/DSC_9746.jpg');
 pictureGray = rgb2gray(picture);
-point1 = detectMinEigenFeatures(pictureGray,'ROI',[1585,853,4,4]);
-% point2 = detectMinEigenFeatures(pictureGray,'ROI',[1459,1098,6,6]);
-% point3 = detectMinEigenFeatures(pictureGray,'ROI', [1709,1198,10,10]);
-% point4 = detectMinEigenFeatures(pictureGray,'ROI',[2314,973,8,8]);
-% point5 = detectMinEigenFeatures(pictureGray,'ROI',[1477,1563,6,6]);
-% point6 = detectMinEigenFeatures(pictureGray,'ROI', [1714,1685,10,10]);
-% point7 = detectMinEigenFeatures(pictureGray,'ROI', [2283,1394,6,6]);
+point1 = detectMinEigenFeatures(pictureGray,'ROI',[2073,905,6,6]);
+point2 = detectMinEigenFeatures(pictureGray,'ROI',[1459,1098,6,6]);
+point3 = detectMinEigenFeatures(pictureGray,'ROI', [1709,1198,10,10]);
+point4 = detectMinEigenFeatures(pictureGray,'ROI',[2314,973,8,8]);
+point5 = detectMinEigenFeatures(pictureGray,'ROI',[1477,1563,6,6]);
+point6 = detectMinEigenFeatures(pictureGray,'ROI', [1714,1685,10,10]);
+point7 = detectMinEigenFeatures(pictureGray,'ROI', [2283,1394,6,6]);
 
 image(picture);
 hold on;

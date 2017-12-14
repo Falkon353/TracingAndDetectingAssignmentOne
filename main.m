@@ -15,4 +15,5 @@ cameraParameters =  cameraParameters('IntrinsicMatrix',intrinsicMatrix);
  
  %[relevantFPic1, relevantDPic1, relevantF3DPic1] = pictureDSC_9743(singleVertex,faces,cameraParameters);
  %[relevantFPic2, relevantDPic2, relevantF3DPic2] = pictureDSC_9744(singleVertex,faces,cameraParameters);
- [relevantFPic2, relevantDPic2, relevantF3DPic2] = pictureDSC_9746(singleVertex,faces,cameraParameters);
+ [relevantFPic2, relevantDPic2, relevantF3DPic2] = pictureDSC_9745(singleVertex,faces,cameraParameters);
+ %[relevantFPic2, relevantDPic2, relevantF3DPic2] = pictureDSC_9746(singleVertex,faces,cameraParameters);
