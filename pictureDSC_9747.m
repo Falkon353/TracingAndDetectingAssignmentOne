@@ -1,39 +1,38 @@
-function [relevantF, relevantD, relevantF3D] = pictureDSC_9746(singleVertex,faces,cameraParameters)
+function [relevantF, relevantD, relevantF3D] = pictureDSC_9747(singleVertex,faces,cameraParameters)
 
 % Geting Corner points
-DCS_9746 = imread('data/images/init_texture/DSC_9746.jpg');
-DSC_9746Gray = rgb2gray(DCS_9746);
-point1 = detectMinEigenFeatures(DSC_9746Gray,'ROI',[2073,905,6,6]);
-point2 = detectMinEigenFeatures(DSC_9746Gray,'ROI',[1459,1098,6,6]);
-point3 = detectMinEigenFeatures(DSC_9746Gray,'ROI', [1709,1198,10,10]);
-point4 = detectMinEigenFeatures(DSC_9746Gray,'ROI',[2314,973,8,8]);
-point5 = detectMinEigenFeatures(DSC_9746Gray,'ROI',[1477,1563,6,6]);
-point6 = detectMinEigenFeatures(DSC_9746Gray,'ROI', [1714,1685,10,10]);
-point7 = detectMinEigenFeatures(DSC_9746Gray,'ROI', [2283,1394,6,6]);
+picture = imread('data/images/init_texture/DSC_9747.jpg');
+pictureGray = rgb2gray(picture);
+point1 = detectMinEigenFeatures(pictureGray,'ROI',[2240,1006,7,7]);
+point2 = detectMinEigenFeatures(pictureGray,'ROI',[1354,992,10,10]);
+point3 = detectMinEigenFeatures(pictureGray,'ROI', [1306,1118,8,8]);
+point4 = detectMinEigenFeatures(pictureGray,'ROI',[2291,1124,8,8]);
+point5 = detectMinEigenFeatures(pictureGray,'ROI',[1339,1594,6,6]);
+point6 = detectMinEigenFeatures(pictureGray,'ROI', [2259,1605,8,8]);
 
-% image(DCS_9746);
+
+% image(picture);
 % hold on;
 %plot(point1.selectStrongest(50));
 %plot(point2.selectStrongest(50));
 %plot(point3.selectStrongest(50));
 %plot(point4.selectStrongest(50));
 %plot(point5.selectStrongest(50));
-%plot(point6.selectStrongest(50));
-%plot(point7.selectStrongest(50));
-%plot(centerPoint);
+% plot(point6.selectStrongest(50));
+% % %plot(centerPoint);
 % hold off
-imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location;point7.Location];
-mapedVertex = [singleVertex(4,:);singleVertex(3,:);singleVertex(2,:);singleVertex(1,:);singleVertex(7,:);singleVertex(6,:);singleVertex(5,:)];
-visebleFaces = [faces(5,:);faces(6,:);faces(1,:);faces(2,:);faces(4,:);faces(3,:)];
+imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location];
+mapedVertex = [singleVertex(4,:);singleVertex(3,:);singleVertex(2,:);singleVertex(1,:);singleVertex(6,:);singleVertex(5,:)];
+visebleFaces = [faces(5,:);faces(6,:);faces(1,:);faces(2,:)];
 %% Estimating camera pose
-[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,mapedVertex,cameraParameters,'MaxReprojectionError',3); 
+[worldOrientation,worldLocation, inlierIdx] = estimateWorldCameraPose(imagePointsM,mapedVertex,cameraParameters,'MaxReprojectionError',5); 
 R = worldOrientation';
 t = -worldLocation*worldOrientation';
 RT = [R; t];
 
 %%Finding sift
- DSC_9746Single = im2single(DSC_9746Gray);
- [F,D] = vl_sift( DSC_9746Single);
+ pictureSingle = im2single(pictureGray);
+ [F,D] = vl_sift( pictureSingle);
  
  relevantF = [];
  relevantD = [];
@@ -42,7 +41,7 @@ RT = [R; t];
  [rows, columns] = size(F);
  [rowVisebleFaces, columnsVisebleFaces] = size(visebleFaces);
  for column = 1:columns
-     if (F(1,column) >= 1418) && (F(1,column) <= 2286) && (F(2,column) >= 908) && (F(2,column) <= 1702)
+     if (F(1,column) >= 1340) && (F(1,column) <= 2256) && (F(2,column) >= 1001) && (F(2,column) <= 1608)
          for face = 1:rowVisebleFaces
              dir = inv(cameraParameters.IntrinsicMatrix')*[F(1,column);F(2,column);1];
              unitDir = dir/norm(dir);
@@ -57,7 +56,7 @@ RT = [R; t];
          end
      end
  end
- image(DCS_9746);
+ image(picture);
  hold on;
  vl_plotsiftdescriptor(relevantD,relevantF);
  hold off;

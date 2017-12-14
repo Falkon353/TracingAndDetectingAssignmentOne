@@ -11,8 +11,8 @@ point5 = detectMinEigenFeatures(DSC_9744Gray,'ROI',[1420,1405,6,6]);
 point6 = detectMinEigenFeatures(DSC_9744Gray,'ROI', [1913,1733,10,10]);
 point7 = detectMinEigenFeatures(DSC_9744Gray,'ROI', [2176,1615,6,6]);
 
-image(DSC_9744);
-hold on;
+% image(DSC_9744);
+% hold on;
 %plot(point1.selectStrongest(50));
 %plot(point2.selectStrongest(50));
 %plot(point3.selectStrongest(50));
@@ -21,7 +21,7 @@ hold on;
 %plot(point6.selectStrongest(50));
 %plot(point7.selectStrongest(50));
 %plot(centerPoint);
-hold off
+% hold off
 imagePointsM = [point1.Location;point2.Location;point3.Location;point4.Location;point5.Location;point6.Location;point7.Location];
 mapedVertex = [singleVertex(4,:);singleVertex(3,:);singleVertex(2,:);singleVertex(1,:);singleVertex(8,:);singleVertex(7,:);singleVertex(6,:)];
 visebleFaces = [faces(5,:);faces(6,:);faces(11,:);faces(12,:);faces(4,:);faces(3,:)];
